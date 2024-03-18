@@ -1,0 +1,164 @@
+blueprint:
+  name: Frigate Notifications
+  description: >
+    ## Frigate Notifications
+
+    This blueprint will send a notification to your device when a Frigate event for the selected camera is fired.
+
+    The notification will initially include the thumbnail of the detection, but include an actionable notification allowing you to view the clip and snapshot.
+  domain: automation
+  source_url: "https://raw.githubusercontent.com/luisammorgado/ha-blueprints/main/frigate.yaml"
+  #########################################################################
+  #
+  #
+  input:
+    camera:
+      name: Frigate Camera
+      description: >
+        Select the camera entity that will trigger notifications.
+      selector:
+        entity:
+          integration: frigate
+          domain:
+            - camera
+          device_class:
+            - camera
+          multiple: true
+
+    #########################################################################
+    #
+    base_url:
+      name: Base URL
+      description: >
+        The external url for your Home Assistant instance.
+      default: ""
+
+    #########################################################################
+    #
+    icon:
+      name: Notification Icon
+      description: >
+        Change the icon that displays on the notification. You can enter a single icon or create a template like the example given in the dropdown.
+        You must include 'mdi:' in the icon name.
+      default: mdi:cctv
+      selector:
+        select:
+          options:
+            - mdi:home-assistant
+            - mdi:cctv
+            - mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog' else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
+          custom_value: true
+          multiple: false
+          sort: false
+
+    #########################################################################
+    #
+    title:
+      name: Notification Title
+      description: >
+        The title of the notification.
+      default: ""
+
+    #########################################################################
+    #
+    message:
+      name: Notification Message
+      description: >
+        You can use variables such as {{camera_name}} and {{label}}
+        e.g {{ label }} {{ ''is loitering'' if loitering else ''was detected'' }} on the {{ camera_name }} camera.
+      default: "{{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera."
+      selector:
+        select:
+          options:
+            - label: "Default: e.g A Person was detected on the Side camera."
+              value: "{{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera."
+            - label: "Short: e.g Person detected - Side"
+              value: "{{ label }} detected - {{ camera_name }}"
+            - label: "Long: e.g A Person was detected on the Side camera in the driveway."
+              value: A {{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera{{ ' in the ' + entered_zones if entered_zones else '.'}}
+          custom_value: true
+          multiple: false
+          sort: false
+
+    #########################################################################
+    #
+    critical:
+      name: Critical Notification
+      description: >
+        Send as a critical notification to the mobile device.
+        Sometimes notifications (particularly on android) are delayed, this will resolve this.
+        You can choose to limit critical notifications to certain times using a template (two examples provided but you can enter your own as long as it outputs true or false)
+      default: "false"
+      selector:
+        select:
+          options:
+            - "false"
+            - "true"
+            - "{{'false' if now().hour in [8,9,10,11,12,13,14,15,16,17,18] else 'true'}}"
+            - "{{'true' if is_state('sun.sun', 'above_horizon') else 'false' }}"
+          custom_value: true
+          multiple: false
+          sort: false
+
+    #########################################################################
+    #
+    attachment:
+      name: Attachment
+      description: >
+        Choose which image to attach to the notification.
+        *Note:* TVs will always get sent the snapshot if TV is true
+      default: thumbnail
+      selector:
+        select:
+          options:
+            - label: Thumbnail
+              value: thumbnail
+            - label: Snapshot
+              value: snapshot
+          custom_value: false
+          multiple: false
+          sort: false
+
+    #########################################################################
+    #
+    channel:
+      name: Notification Channel (Android only)
+      description: >
+        Create a new channel for notifications to allow custom notification sounds, vibration patterns and overide of Do Not Disturb mode.
+        Configured directly on the device.
+      default: ""
+
+    #########################################################################
+    #
+    tap_action:
+      name: Tap Action URL
+      description: >
+        The url to open when tapping on the notification. Some presets are provided, you can also set you own.
+        These options define the text and urls associated with the three action buttons at the bottom of the notification.
+      default: "{{base_url}}/api/frigate/notifications/{{id}}/{{camera}}/clip.mp4"
+      selector:
+        select:
+          options:
+            - label: View Clip
+              value: "{{base_url}}/api/frigate/notifications/{{id}}/{{camera}}/clip.mp4"
+            - label: View Snapshot
+              value: "{{base_url}}/api/frigate/notifications/{{id}}/snapshot.jpg"
+            - label: View Stream
+              value: "{{base_url}}/api/camera_proxy_stream/camera.{{trigger.payload_json['after']['camera'].lower()}}?token={{state_attr('camera.' ~ camera, 'access_token')}}"
+            - label: Open HA (web)
+              value: "{{base_url}}/lovelace"
+            - label: Open HA (app)
+              value: /lovelace
+            - label: Open Frigate
+              value: /ccab4aaf_frigate/dashboard
+          #- label: Open Frigate (Full Access)
+          #  value: /ccab4aaf_frigate-fa/dashboard
+          #- label: Open Frigate (proxy)
+          #  value: /ccab4aaf_frigate-proxy/dashboard
+          #- label: Open Reolink App (Android)
+          #  value: app://com.mcu.reolink
+          custom_value: true
+          multiple: false
+          sort: false
+    #########################################################################
+    #
