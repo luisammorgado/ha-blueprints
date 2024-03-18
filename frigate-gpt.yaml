@@ -7,7 +7,10 @@ blueprint:
 
     The notification will initially include the thumbnail of the detection, but include an actionable notification allowing you to view the clip and snapshot.
   domain: automation
-  source_url: https://github.com/mhaowork/HA_blueprints/blob/main/Frigate%20Camera%20Notifications/Stable.yaml
+  source_url: "https://raw.githubusercontent.com/luisammorgado/ha-blueprints/main/frigate-gpt.yaml"
+  #########################################################################
+  #
+  #
   input:
     camera:
       name: Frigate Camera
@@ -21,6 +24,8 @@ blueprint:
           device_class:
             - camera
           multiple: false
+    #########################################################################
+    #
     notify_device:
       name: Mobile Device
       description: >
@@ -33,6 +38,8 @@ blueprint:
         device:
           integration: mobile_app
           multiple: false
+    #########################################################################
+    #
     notify_group:
       name: Notification Group or Android/Fire TV (Optional)
       description: >
@@ -40,42 +47,48 @@ blueprint:
         If set, this will override individual devices above.
         Note: If the group contains both mobile devices and TVs, the TV will not display the snapshot unless TV notifications to true, however this will stop android phones recieving thumbnails.
       default: ""
+    #########################################################################
+    #
     base_url:
       name: Base URL (Optional)
       description: >
         The external url for your Home Assistant instance.
         Recommended for iOS and required for Android/Fire TV.
       default: ""
+    #########################################################################
+    #
     title:
-      name: Notification Title (Optional)
+      name: Notification Title
       description: >
         The title of the notification.
       default: ""
+    #########################################################################
+    #
     message:
       name: Notification Message
       description: >
         You can use variables such as {{camera_name}} and {{label}}
-        e.g A {{ label }} {{ ''is loitering'' if loitering else ''was detected'' }} on the {{ camera_name }} camera.
-      default: A {{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera.
+        e.g {{ label }} {{ ''is loitering'' if loitering else ''was detected'' }} on the {{ camera_name }} camera.
+      default: "{{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera."
       selector:
         select:
           options:
-            - label: "Default:e.g A Person was detected on the Side camera."
-              value: A {{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera.
-            - label: "Short:     e.g Person detected - Side"
+            - label: "Default: e.g A Person was detected on the Side camera."
+              value: "{{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera."
+            - label: "Short: e.g Person detected - Side"
               value: "{{ label }} detected - {{ camera_name }}"
-            - label: "Long:      e.g A Person was detected on the Side camera in the driveway."
+            - label: "Long: e.g A Person was detected on the Side camera in the driveway."
               value: A {{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera{{ ' in the ' + entered_zones if entered_zones else '.'}}
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     critical:
-      name: Critical Notification (Optional)
+      name: Critical Notification
       description: >
         Send as a critical notification to the mobile device.
-
-        Sometimes notifications (particularly on android) are delayed, this will resolve  this.
-
+        Sometimes notifications (particularly on android) are delayed, this will resolve this.
         You can choose to limit critical notifications to certain times using a template (two examples provided but you can enter your own as long as it outputs true or false)
       default: "false"
       selector:
@@ -88,19 +101,22 @@ blueprint:
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     alert_once:
-      name: Alert Once (Optional)
+      name: Alert Once
       description: >
         Only the first notification for each event will play a sound. Updates, including new thumbnails will be silent. iOS users who use Critical Notifications above will still hear default critical sounds for updates.
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     attachment:
       name: Attachment
       description: >
         Choose which image to attach to the notification.
-
-        Note: TVs will always get sent the snapshot if TV is true
+        *Note:* TVs will always get sent the snapshot if TV is true
       default: thumbnail
       selector:
         select:
@@ -112,14 +128,18 @@ blueprint:
           custom_value: false
           multiple: false
           sort: false
+    #########################################################################
+    #
     update_thumbnail:
-      name: Update Attachment (Optional)
+      name: Update Attachment
       description: Update the notification if a new "better" image is available.
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     color:
-      name: Notification Color (Optional)
+      name: Notification Color
       description: Set the color of the notification on your mobile device or TV.
       default: steelblue
       selector:
@@ -138,24 +158,27 @@ blueprint:
           custom_value: false
           multiple: false
           sort: false
+    #########################################################################
+    #
     icon:
-      name: Notification Icon (Optional)
+      name: Notification Icon
       description: >
         Change the icon that displays on the notification. You can enter a single icon or create a template like the example given in the dropdown.
         You must include 'mdi:' in the icon name.
-      default: mdi:home-assistant
+      default: mdi:cctv
       selector:
         select:
           options:
             - mdi:home-assistant
             - mdi:cctv
-            - mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog'
-              else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
+            - mdi:{{'account-outline' if label == 'Person' else 'dog' if label == 'Dog' else 'cat' if label == 'Cat' else 'car' if label == 'Car' else 'home-assistant'}}
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     sound:
-      name: Notification Sound - iOS only (Optional)
+      name: Notification Sound (iOS only)
       description: >
         You can specify a soud file on your device that will play for the notifications. You will need to import the sound file into home assistant.
       default: default
@@ -167,27 +190,35 @@ blueprint:
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     ios_live_view:
-      name: Live View - iOS only (Optional)
+      name: Live View (iOS only)
       description: >
         Attach a live view to the notification for iOS devices
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     channel:
-      name: Notification Channel - Android only (Optional)
+      name: Notification Channel (Android only)
       description: >
         Create a new channel for notifications to allow custom notification sounds, vibration patterns and overide of Do Not Disturb mode. Configured directly on the device.
       default: ""
+    #########################################################################
+    #
     zone_filter:
-      name: Zone Filter on/off (Optional)
+      name: Zone Filter
       description: >
         Enable to only notify if object has entered a zone listed below.
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     zones:
-      name: Required Zones (Optional - Enabled Above)
+      name: Required Zones
       description: >
         Enter the name of one zone at a time. Include underscores as per your frigate config.
         By default any zone is acceptable. if you desire ALL listed zones to be entered before getting a notification, enable the multi toggle below.
@@ -205,15 +236,19 @@ blueprint:
           multiple: true
           custom_value: true
           sort: false
+    #########################################################################
+    #
     zone_multi:
-      name: Multi Zone (Optional)
+      name: Multi Zone
       description: >
         Require all zones specified above to be entered, instead of any listed zone. Zone Filter must be enabled also.
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     labels:
-      name: Object Filter (Optional)
+      name: Object Filter
       description: >
         Enter or select one object at a time.
         Note: If the text entry is glitching (dissapearing every few seconds) select one of the examples, then edit in yaml mode.
@@ -225,13 +260,13 @@ blueprint:
             - dog
             - cat
             - car
-            - package
-            - bird
           multiple: true
           custom_value: true
           sort: false
+    #########################################################################
+    #
     presence_filter:
-      name: Presence Filter (Optional)
+      name: Presence Filter
       description: >
         Only notify if selected presence entity is not "home".
       default: ""
@@ -242,22 +277,30 @@ blueprint:
             - person
             - group
           multiple: false
+    #########################################################################
+    #
     state_filter:
-      name: State Filter on/off (Optional)
+      name: State Filter
       description: >
-        Enable the two State Filter settings below. Only notify if selected entity is in the specified states.
+        Enable the two State Filter settings below.
+        Only notify if selected entity is in the specified states.
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     state_entity:
-      name: State Filter Entity (Optional)
+      name: State Filter Entity
       description: >
-        Only notify if selected entity is in the below state. You must enable State Filter above to use this.
+        Only notify if selected entity is in the below state.
+        You must enable State Filter above to use this.
       default: ""
       selector:
         entity: {}
+    #########################################################################
+    #
     state_filter_states:
-      name: State Filter States (Optional)
+      name: State Filter States
       description: >
         Enter the states that the above entity must be in, one at a time.
       default: []
@@ -267,8 +310,10 @@ blueprint:
           multiple: true
           custom_value: true
           sort: false
+    #########################################################################
+    #
     disable_times:
-      name: Time Filter (Optional)
+      name: Time Filter
       description: >
         Prevent notifications from being sent during the specified hours
       default: []
@@ -326,8 +371,10 @@ blueprint:
               value: "23"
           custom_value: false
           sort: false
+    #########################################################################
+    #
     cooldown:
-      name: Cooldown (Optional)
+      name: Cooldown
       description: >
         Delay before sending another notification for this camera after the last event.
       default: 30
@@ -338,8 +385,10 @@ blueprint:
           unit_of_measurement: seconds
           step: 1.0
           mode: slider
+    #########################################################################
+    #
     silence_timer:
-      name: Silence New Object Notifications (Optional)
+      name: Silence New  Notifications
       description: >
         How long to silence notifications for this camera when requested as part of the actionable notification.
         Note: This only applies to new objects.
@@ -352,8 +401,10 @@ blueprint:
           unit_of_measurement: minutes
           step: 1.0
           mode: slider
+    #########################################################################
+    #
     loiter_timer:
-      name: Loitering Notifications (Optional)
+      name: Loitering Notifications
       description: >
         Sends new loitering notification if a stationary object is detected for longer than the specified time. 0 is off and will not send notifications.
       default: 0
@@ -364,11 +415,13 @@ blueprint:
           unit_of_measurement: minutes
           step: 1.0
           mode: slider
+    #########################################################################
+    #
     tap_action:
       name: Tap Action URL
       description: >
         The url to open when tapping on the notification. Some presets are provided, you can also set you own.
-        These 7 options define the text and urls associated with the three action buttons at the bottom of the notification.
+        These options define the text and urls associated with the three action buttons at the bottom of the notification.
       default: "{{base_url}}/api/frigate/notifications/{{id}}/{{camera}}/clip.mp4"
       selector:
         select:
@@ -394,12 +447,16 @@ blueprint:
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     button_1:
       name: Action Button 1 Text
       description: >
         The text used on the first Action button at the bottom of the notification.
         Set the URL below. Default is View Clip
       default: View Clip
+    #########################################################################
+    #
     url_1:
       name: Action Button 1 URL
       description: >
@@ -421,11 +478,15 @@ blueprint:
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     button_2:
       name: Action Button 2 Text
       description: >
         The text used on the second Action button at the bottom of the notification. Set the URL below.
       default: View Snapshot
+    #########################################################################
+    #
     url_2:
       name: Action Button 2 URL
       description: >
@@ -446,12 +507,16 @@ blueprint:
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     button_3:
       name: Action Button 3 Text
       description: >
         The text used on the third Action button at the bottom of the notification.
         Set the URL below.
       default: Silence New Notifications
+    #########################################################################
+    #
     url_3:
       name: Action Button 3 URL
       description: >
@@ -474,8 +539,10 @@ blueprint:
           custom_value: true
           multiple: false
           sort: false
+    #########################################################################
+    #
     tv:
-      name: TV Notification (Optional)
+      name: TV Notification
       description: >
         Set to true if you are notifying an Android/Fire TV
         Can also be used to prioritise snapshots on the TV over android mobile apps when notifying a mixed device group.
@@ -484,8 +551,10 @@ blueprint:
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     tv_position:
-      name: TV Notification Position (Optional)
+      name: TV Notification Position
       description: >
         Set the position of the notification on your TV
       default: center
@@ -501,8 +570,10 @@ blueprint:
           custom_value: false
           multiple: false
           sort: false
+    #########################################################################
+    #
     tv_size:
-      name: TV Notification Size (Optional)
+      name: TV Notification Size
       description: >
         Set the size of the notification on your TV.
       default: large
@@ -517,8 +588,10 @@ blueprint:
           custom_value: false
           multiple: false
           sort: false
+    #########################################################################
+    #
     tv_duration:
-      name: TV Notification Duration (Optional)
+      name: TV Notification Duration
       description: >
         The duration (in seconds) the notification will display on your TV.
       default: 10
@@ -529,8 +602,10 @@ blueprint:
           unit_of_measurement: seconds
           step: 1.0
           mode: slider
+    #########################################################################
+    #
     tv_transparency:
-      name: TV notification Transaparency (Optional)
+      name: TV notification Transaparency
       description: >
         Set the transparency of the notification on your TV.
       default: 0%
@@ -546,13 +621,18 @@ blueprint:
           custom_value: false
           multiple: false
           sort: false
+    #########################################################################
+    #
     tv_interrupt:
-      name: TV Notification Interrupt (Optional)
+      name: TV Notification Interrupt
       description: >
-        If set to true the notification is interactive and can be dismissed or selected to display more details. Depending on the running app (e.g., Netflix), this may stop playback.
+        If set to true the notification is interactive and can be dismissed or selected to display more details.
+        Depending on the running app (e.g., Netflix), this may stop playback.
       default: false
       selector:
         boolean: {}
+    #########################################################################
+    #
     debug:
       name: Debug
       description: >
@@ -562,10 +642,16 @@ blueprint:
         boolean: {}
 mode: parallel
 
+###########################################################################
+#
+#
 trigger_variables:
   input_camera: !input camera
   camera: "{{ input_camera | replace('camera.', '') }}"
 
+###########################################################################
+#
+#
 trigger:
   - platform: event
     event_type: mobile_app_notification_action
@@ -578,6 +664,9 @@ trigger:
     value_template: "{{ value_json['after']['camera'] | lower | replace('-','_') }}/{{ value_json['type']}}"
     id: frigate-event
 
+###########################################################################
+#
+#
 variables:
   input_camera: !input camera
   camera: "{{ input_camera | replace('camera.', '') }}"
@@ -603,7 +692,7 @@ variables:
   cooldown: !input cooldown
   loitering: false
   loiter_timer: !input loiter_timer
-  fps: "{{ states('sensor.' + camera + '_camera_fps')|int(5) }}"
+  fps: "{{ states('sensor.' + camera + '_camera_fps')| int(5) }}"
   state_only: !input state_filter
   input_entity: !input state_entity
   input_states: !input state_filter_states
@@ -618,6 +707,9 @@ variables:
   tv_interrupt: !input tv_interrupt
   debug: !input debug
 
+###########################################################################
+#
+#
 action:
   - choose:
       - alias: Silence New Object Notifications
@@ -652,8 +744,10 @@ action:
               initial_home: "{{ presence_entity != '' and is_state(presence_entity, 'home') }}"
               initial_entered_zones: "{{ trigger.payload_json['after']['entered_zones'] | lower}}"
               zone_multi_filter: "{{zone_only and zone_multi and initial_entered_zones | length and zones and zones | reject('in', initial_entered_zones) | list | length == 0 }}"
+              icon: !input icon
               title: !input title
               message: !input message
+              channel: !input channel
               tap_action: !input tap_action
               button_1: !input button_1
               button_2: !input button_2
@@ -661,41 +755,34 @@ action:
               url_1: !input url_1
               url_2: !input url_2
               url_3: !input url_3
-              icon: !input icon
-              channel: !input channel
 
           - alias: "Debug: write to Log"
             choose:
               - conditions:
-                  - "{{debug}}"
+                  - "{{ debug }}"
                 sequence:
                   - service: logbook.log
                     data_template:
                       name: Frigate Notification
                       message: >
-                        DEBUG:
-                          Info:
-                          fps: {{fps}},
-                          frigate event id: {{id}},
+                        ## DEBUG:
+                        Info:
+                        fps: {{fps}},
+                        frigate event id: {{id}},
                         object (formatted): {{object}} ({{label}}),
+                        Config: camera(formatted): {{camera}}({{camera_name}}),
 
-                        Config:
-                        camera(formatted): {{camera}}({{camera_name}}),
-                        Base URL:
-                        {{base_url}},
+                        Base URL: {{base_url}},
                         critical: {{critical}},
                         alert once: {{alert_once}},
                         Update Thumbnails: {{update_thumbnail}},
-
                         Target: {{'group (input/formatted): ' + group + '/' + group_target + ', ' if group else 'Mobile Device'}}
-
                         cooldown: {{cooldown}}s,
                         loiter timer: {{loiter_timer}}s,
                         color: {{color}},
                         sound: {{sound}},
                         Title: {{title}},
                         Message: {{message}},
-
                         Summary: {{summary if summary != '' else '<EMPTY>'}}
                         tap_action: {{tap_action}},
                         button 1 Text/URL: {{iif(button_1, button_1, 'unset')}} ({{url_1}}),
@@ -708,7 +795,9 @@ action:
                         tv_duration: {{tv_duration}},
                         tv_transparency: {{tv_transparency}},
                         tv_interrupt: {{tv_interrupt}},
+
                         Filters:
+
                         Zones:
                         zone filter toggle on: {{zone_only}},
                         Multi Zone toggle on: {{zone_multi}},
@@ -726,11 +815,11 @@ action:
 
                         TEST:  {{'PASS' if not initial_home else 'FAIL'}},
                         disabled times: {{disable_times}},
+
                         State Filter:
                         state filter toggle on: {{state_only}},
                         state filter entity: {{input_entity}},
-                        required states:
-                        {{input_states}},
+                        required states: {{input_states}},
 
                         State Filter TEST: {{'PASS' if not state_only or states(input_entity) in states_filter else 'FAIL' }},
 
@@ -874,6 +963,7 @@ action:
                   timeout:
                     minutes: 5
                   continue_on_timeout: false
+
                 - variables:
                     event: "{{ wait.trigger.payload_json }}"
                     loitering: "{{ loiter_timer and event['before']['motionless_count']/fps/60 < loiter_timer and event['after']['motionless_count']/fps/60 >= loiter_timer }}"
@@ -892,8 +982,8 @@ action:
                     sub_label: "{{ event['after']['sub_label']}}"
                     sub_label_changed: "{{ sub_label != event['before']['sub_label'] }}"
                     update: "{{ alert_once or (new_snapshot and not loitering and not presence_changed and not zone_only_changed and not entered_zones_changed and not sub_label_changed) }}"
-                    title: "{% if sub_label %} \n  {{title | replace('A Person', sub_label|title) | replace('Person', sub_label|title)}}\n{%else%}\n  {{title}}\n{%endif%}"
-                    message: "{% if sub_label %} \n  {{message | replace('A Person', sub_label|title) | replace('Person', sub_label|title)}}\n{%else%}\n  {{message}}\n{%endif%}\n"
+                    title: "{% if sub_label %}\n{{title | replace('A Person', sub_label|title) | replace('Person', sub_label|title)}}\n{%else%}\n{{title}}\n{%endif%}"
+                    message: "{% if sub_label %}\n{{message | replace('A Person', sub_label|title) | replace('Person', sub_label|title)}}\n{%else%}\n{{message}}\n{%endif%}\n"
                     summary: "{{event['after']['summary'] }}"
 
                 - alias: "Debug: write to Log"
