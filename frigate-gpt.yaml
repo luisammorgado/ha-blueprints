@@ -4,6 +4,7 @@ blueprint:
     ## Frigate Notifications
 
     This blueprint will send a notification to your device when a Frigate event for the selected camera is fired.
+
     The notification will initially include the thumbnail of the detection, but include an actionable notification allowing you to view the clip and snapshot.
   domain: automation
   source_url: https://github.com/mhaowork/HA_blueprints/blob/main/Frigate%20Camera%20Notifications/Stable.yaml
@@ -48,19 +49,13 @@ blueprint:
     title:
       name: Notification Title (Optional)
       description: >
-        # Notification Customisations
-
         The title of the notification.
       default: ""
     message:
       name: Notification Message
       description: >
-        The message of the notification.
-
         You can use variables such as {{camera_name}} and {{label}}
-
         e.g A {{ label }} {{ ''is loitering'' if loitering else ''was detected'' }} on the {{ camera_name }} camera.
-
       default: A {{ label }} {{ 'is loitering' if loitering else 'was detected' }} on the {{ camera_name }} camera.
       selector:
         select:
@@ -187,7 +182,6 @@ blueprint:
     zone_filter:
       name: Zone Filter on/off (Optional)
       description: >
-        # Filters
         Enable to only notify if object has entered a zone listed below.
       default: false
       selector:
@@ -373,7 +367,6 @@ blueprint:
     tap_action:
       name: Tap Action URL
       description: >
-        # Action Buttons and URLs
         The url to open when tapping on the notification. Some presets are provided, you can also set you own.
         These 7 options define the text and urls associated with the three action buttons at the bottom of the notification.
       default: "{{base_url}}/api/frigate/notifications/{{id}}/{{camera}}/clip.mp4"
@@ -484,12 +477,8 @@ blueprint:
     tv:
       name: TV Notification (Optional)
       description: >
-        # TV Notifications
-
         Set to true if you are notifying an Android/Fire TV
-
         Can also be used to prioritise snapshots on the TV over android mobile apps when notifying a mixed device group.
-
         Base URL must be set
         The below settings are for TV notifications only
       default: false
@@ -567,7 +556,6 @@ blueprint:
     debug:
       name: Debug
       description: >
-        # DEBUG
         Enable to send debug messsages to the home assistant logbook.
       default: false
       selector:
